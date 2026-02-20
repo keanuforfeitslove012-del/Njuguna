@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Sorcerer Killer's Request</title>
+    <title>Sorcerer Killer: The Contract</title>
     <style>
         :root {
-            --toji-teal: #1a3a3a;
-            --toji-black: #0d0d0d;
-            --accent-green: #4ade80;
-            --blood-red: #8b0000;
+            --toji-teal: #1e3a3a;
+            --toji-black: #080808;
+            --accent-green: #5eead4;
+            --spear-silver: #e2e8f0;
         }
 
         body {
@@ -24,148 +24,161 @@
             overflow: hidden;
         }
 
-        /* Animated Background Gradients */
-        .bg-overlay {
-            position: fixed;
+        /* Scanline Overlay */
+        body::before {
+            content: " ";
+            position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, var(--toji-teal) 0%, transparent 70%);
-            opacity: 0.3;
-            z-index: -1;
-            animation: pulse 4s infinite alternate;
-        }
-
-        @keyframes pulse {
-            from { opacity: 0.2; transform: scale(1); }
-            to { opacity: 0.4; transform: scale(1.1); }
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
         }
 
         .container {
             text-align: center;
-            border: 2px solid var(--accent-green);
-            padding: 40px;
-            background: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 0 20px var(--accent-green);
-            max-width: 500px;
-            border-radius: 10px;
+            border: 1px solid var(--toji-teal);
+            padding: 50px;
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: 0 0 40px rgba(94, 234, 212, 0.1);
+            max-width: 450px;
+            border-radius: 4px;
+            position: relative;
         }
 
         #question-text {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            min-height: 80px;
-            text-shadow: 0 0 5px var(--accent-green);
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            min-height: 100px;
+            letter-spacing: 1px;
+            line-height: 1.5;
         }
 
         .btn-container {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
+            min-height: 50px;
         }
 
         .btn {
             background: transparent;
             color: var(--accent-green);
             border: 1px solid var(--accent-green);
-            padding: 10px 25px;
+            padding: 12px 28px;
             cursor: pointer;
             font-family: inherit;
-            font-weight: bold;
-            transition: 0.3s;
+            text-transform: uppercase;
+            transition: 0.2s;
         }
 
         .btn:hover {
             background: var(--accent-green);
             color: black;
-            box-shadow: 0 0 15px var(--accent-green);
+            box-shadow: 0 0 20px var(--accent-green);
         }
 
-        #no-btn {
-            position: relative;
-        }
-
-        .music-player {
-            margin-top: 20px;
-            opacity: 0.5;
-            transition: 0.3s;
-        }
-
-        .music-player:hover { opacity: 1; }
+        #no-btn { transition: 0.1s ease-out; z-index: 1000; }
 
         .hidden { display: none; }
+
+        /* Ending Style */
+        .final-screen h1 {
+            color: var(--accent-green);
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 2px 2px var(--toji-black), 4px 4px rgba(94, 234, 212, 0.3);
+        }
+
+        .spear-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+        }
     </style>
 </head>
 <body>
 
-<div class="bg-overlay"></div>
-
-<div class="container">
-    <div id="game-box">
-        <p id="question-text">Target locked. I have zero cursed energy... but I have a question for you.</p>
+<div class="container" id="main-container">
+    <div id="content-box">
+        <span class="spear-icon">⚔️</span>
+        <p id="question-text">Subject identified. No cursed energy detected... <br><br>Initiating contact.</p>
         
         <div class="btn-container">
-            <button id="next-btn" class="btn" onclick="nextQuestion()">Proceed</button>
-            <button id="yes-btn" class="btn hidden" onclick="finalize()">YES</button>
-            <button id="no-btn" class="btn hidden" onmouseover="moveNo()">NO</button>
+            <button id="next-btn" class="btn" onclick="nextStep()">Continue</button>
+            <button id="yes-btn" class="btn hidden" onclick="finalize()">ACCEPT</button>
+            <button id="no-btn" class="btn hidden" onmouseover="evade()">DECLINE</button>
         </div>
-    </div>
-
-    <div class="music-player">
-        <p style="font-size: 10px;">Play BGM (Hidden Inventory Theme)</p>
-        <audio id="bgm" controls loop>
-            <source src="https://www.myinstants.com/media/sounds/toji-fushiguro-theme.mp3" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>
     </div>
 </div>
 
+<audio id="bgm" loop>
+    <source src="https://open.spotify.com/track/688o7mJuRk2PabPvprhoeF?si=h8Be5PtSTY-J9I-Oj_JrvA&context=spotify%3Aplaylist%3A37i9dQZF1E4xISAc6g3wOs" type="audio/mpeg">
+</audio>
+
 <script>
-    const questions = [
-        "In a world of sorcerers, you're the only one I can't look away from.",
-        "Forget the Zenin clan... the only thing that matters right now is you.",
-        "I've completed every contract except one...",
-        "Will you be my Valentine? (Don't say no, I have a fly-head curse ready...)"
+    const steps = [
+        "Being a Zenin meant nothing. Being a Fushiguro meant nothing.",
+        "But being with you? That's a contract worth taking.",
+        "I've got the Inverted Spear of Heaven, but you're the only one who broke through my defenses.",
+        "So... will you be my Valentine? (This is a non-negotiable contract)."
     ];
 
-    let currentIdx = 0;
+    let currentStep = 0;
+    const audio = document.getElementById('bgm');
 
-    function nextQuestion() {
-        const textElement = document.getElementById('question-text');
+    function nextStep() {
+        // Start audio on first click
+        if (currentStep === 0) {
+            audio.play().catch(e => console.log("Audio play blocked until interaction"));
+        }
+
+        const text = document.getElementById('question-text');
         const nextBtn = document.getElementById('next-btn');
         const yesBtn = document.getElementById('yes-btn');
         const noBtn = document.getElementById('no-btn');
 
-        if (currentIdx < questions.length) {
-            textElement.style.opacity = 0;
+        if (currentStep < steps.length) {
+            text.style.opacity = 0;
             setTimeout(() => {
-                textElement.innerText = questions[currentIdx];
-                textElement.style.opacity = 1;
-                currentIdx++;
+                text.innerText = steps[currentStep];
+                text.style.opacity = 1;
+                currentStep++;
 
-                if (currentIdx === questions.length) {
+                if (currentStep === steps.length) {
                     nextBtn.classList.add('hidden');
                     yesBtn.classList.remove('hidden');
                     noBtn.classList.remove('hidden');
                 }
-            }, 300);
+            }, 200);
         }
     }
 
-    function moveNo() {
+    function evade() {
         const btn = document.getElementById('no-btn');
         const x = Math.random() * (window.innerWidth - btn.clientWidth);
         const y = Math.random() * (window.innerHeight - btn.clientHeight);
-        
         btn.style.position = 'fixed';
         btn.style.left = x + 'px';
         btn.style.top = y + 'px';
     }
 
     function finalize() {
-        document.getElementById('game-box').innerHTML = `
-            <h1 style="color: var(--accent-green)">CONTRACT SIGNED.</h1>
-            <p>"I'm a man who doesn't care about anything... except you."</p>
-            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXR3bmN6NXp1eXR3bmN6NXp1eXR3bmN6NXp1eXR3bmN6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/vYggnFf63wg6mS2mAn/giphy.gif" alt="Toji" style="width:100%; border-radius:10px; margin-top:10px;">
+        const container = document.getElementById('main-container');
+        container.innerHTML = `
+            <div class="final-screen">
+                <span style="color: #5eead4; font-size: 12px;">STATUS: RESTRICTION BROKEN</span>
+                <h1>CONTRACT SIGNED</h1>
+                <p style="margin-top: 20px; color: #cbd5e1;">
+                    "I remembered... I don't care about winning or losing. I just wanted you."
+                </p>
+                <div style="margin-top: 20px; border: 1px solid #5eead4; padding: 10px;">
+                    <span style="color: #5eead4;">❤ VALENTINE CONFIRMED</span>
+                </div>
+            </div>
         `;
+        // Optional: Keep the music playing or change it!
     }
 </script>
 
