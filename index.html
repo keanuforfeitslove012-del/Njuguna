@@ -3,182 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorcerer Killer: The Contract</title>
+    <title>Hero Association Contract</title>
     <style>
         :root {
-            --toji-teal: #1e3a3a;
-            --toji-black: #080808;
-            --accent-green: #5eead4;
-            --spear-silver: #e2e8f0;
+            --deku-green: #00ffcc;
+            --bakugo-orange: #ff4d00;
+            --allmight-blue: #0033cc;
+            --sakamoto-red: #cc0000;
         }
 
         body {
             margin: 0;
-            background-color: var(--toji-black);
+            background-color: #0a0a0a;
             color: white;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Arial Black', Gadget, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
         }
 
-        /* Scanline Overlay */
-        body::before {
-            content: " ";
+        /* Lightning Effect (Deku) */
+        .lightning {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
             pointer-events: none;
-            z-index: 100;
+            z-index: 1;
+            opacity: 0.3;
         }
 
-        .container {
+        .card {
+            background: rgba(20, 20, 20, 0.9);
+            border: 5px solid var(--allmight-blue);
+            padding: 40px;
             text-align: center;
-            border: 1px solid var(--toji-teal);
-            padding: 50px;
-            background: rgba(10, 10, 10, 0.95);
-            box-shadow: 0 0 40px rgba(94, 234, 212, 0.1);
-            max-width: 450px;
-            border-radius: 4px;
+            border-radius: 0px; /* Sakamoto's sharp style */
+            box-shadow: 10px 10px 0px var(--bakugo-orange);
+            z-index: 10;
+            max-width: 500px;
             position: relative;
         }
 
-        #question-text {
-            font-size: 1.3rem;
-            margin-bottom: 2.5rem;
-            min-height: 100px;
-            letter-spacing: 1px;
-            line-height: 1.5;
+        h1 {
+            color: var(--deku-green);
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            margin-top: 0;
+            text-shadow: 3px 3px var(--sakamoto-red);
         }
 
-        .btn-container {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            min-height: 50px;
+        .quote {
+            font-style: italic;
+            color: #ccc;
+            margin-bottom: 20px;
+            font-family: 'Georgia', serif;
         }
 
         .btn {
-            background: transparent;
-            color: var(--accent-green);
-            border: 1px solid var(--accent-green);
-            padding: 12px 28px;
+            background: var(--bakugo-orange);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-weight: bold;
             cursor: pointer;
-            font-family: inherit;
+            margin: 10px;
             text-transform: uppercase;
             transition: 0.2s;
+            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
         }
 
         .btn:hover {
-            background: var(--accent-green);
+            transform: scale(1.1);
+            background: var(--deku-green);
             color: black;
-            box-shadow: 0 0 20px var(--accent-green);
         }
 
-        #no-btn { transition: 0.1s ease-out; z-index: 1000; }
+        #no-btn {
+            background: var(--sakamoto-red);
+            position: absolute;
+        }
 
         .hidden { display: none; }
 
-        /* Ending Style */
-        .final-screen h1 {
-            color: var(--accent-green);
-            font-size: 2.5rem;
-            margin: 0;
-            text-shadow: 2px 2px var(--toji-black), 4px 4px rgba(94, 234, 212, 0.3);
-        }
-
-        .spear-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-            display: block;
+        /* Animation for "Plus Ultra" moment */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            40% { transform: translate(3px, 2px) rotate(-1deg); }
+            100% { transform: translate(1px, -1px) rotate(0deg); }
         }
     </style>
 </head>
 <body>
 
-<div class="container" id="main-container">
-    <div id="content-box">
-        <span class="spear-icon">⚔️</span>
-        <p id="question-text">Subject identified. No cursed energy detected... <br><br>Initiating contact.</p>
+<div class="lightning" id="lightning-box"></div>
+
+<div class="card" id="main-card">
+    <div id="content">
+        <div class="quote" id="speaker-quote">"I am here... to ask you something!" - All Might</div>
+        <h1 id="main-text">Ready for the Mission?</h1>
         
-        <div class="btn-container">
-            <button id="next-btn" class="btn" onclick="nextStep()">Continue</button>
-            <button id="yes-btn" class="btn hidden" onclick="finalize()">ACCEPT</button>
-            <button id="no-btn" class="btn hidden" onmouseover="evade()">DECLINE</button>
+        <div id="btn-zone">
+            <button class="btn" onclick="nextPhase()">Go Beyond!</button>
         </div>
     </div>
 </div>
 
-<audio id="bgm" loop>
+<audio id="theme-song" loop>
     <source src="https://open.spotify.com/track/688o7mJuRk2PabPvprhoeF?si=h8Be5PtSTY-J9I-Oj_JrvA&context=spotify%3Aplaylist%3A37i9dQZF1E4xISAc6g3wOs" type="audio/mpeg">
+    Your browser does not support the audio element.
 </audio>
 
 <script>
-    const steps = [
-        "Being a Zenin meant nothing. Being a Fushiguro meant nothing.",
-        "But being with you? That's a contract worth taking.",
-        "I've got the Inverted Spear of Heaven, but you're the only one who broke through my defenses.",
-        "So... will you be my Valentine? (This is a non-negotiable contract)."
+    const phases = [
+        {
+            quote: '"Stop talking. I will win. That’s what it means to be a hero!" - Bakugo',
+            text: "You've got that explosive spirit...",
+            btn: "Next"
+        },
+        {
+            quote: '"A hitman never leaves a job unfinished." - Sakamoto',
+            text: "And I never miss my target.",
+            btn: "Final Phase"
+        },
+        {
+            quote: '"You can become a hero." - Midoriya',
+            text: "Will you be my Valentine? (Plus Ultra!)",
+            btn: "YES",
+            hasNo: true
+        }
     ];
 
-    let currentStep = 0;
-    const audio = document.getElementById('bgm');
+    let current = 0;
+    const song = document.getElementById('theme-song');
 
-    function nextStep() {
-        // Start audio on first click
-        if (currentStep === 0) {
-            audio.play().catch(e => console.log("Audio play blocked until interaction"));
+    function nextPhase() {
+        // Play song on first interaction
+        song.play().catch(() => console.log("Song link requires a direct file to auto-play."));
+        
+        const data = phases[current];
+        document.getElementById('speaker-quote').innerText = data.quote;
+        document.getElementById('main-text').innerText = data.text;
+        
+        const btnZone = document.getElementById('btn-zone');
+        
+        if (data.hasNo) {
+            btnZone.innerHTML = `
+                <button class="btn" onclick="finalize()">YES!</button>
+                <button class="btn" id="no-btn" onmouseover="runAway()">NO</button>
+            `;
+        } else {
+            btnZone.innerHTML = `<button class="btn" onclick="nextPhase()">${data.btn}</button>`;
         }
-
-        const text = document.getElementById('question-text');
-        const nextBtn = document.getElementById('next-btn');
-        const yesBtn = document.getElementById('yes-btn');
-        const noBtn = document.getElementById('no-btn');
-
-        if (currentStep < steps.length) {
-            text.style.opacity = 0;
-            setTimeout(() => {
-                text.innerText = steps[currentStep];
-                text.style.opacity = 1;
-                currentStep++;
-
-                if (currentStep === steps.length) {
-                    nextBtn.classList.add('hidden');
-                    yesBtn.classList.remove('hidden');
-                    noBtn.classList.remove('hidden');
-                }
-            }, 200);
-        }
+        
+        current++;
+        triggerLightning();
     }
 
-    function evade() {
+    function runAway() {
         const btn = document.getElementById('no-btn');
-        const x = Math.random() * (window.innerWidth - btn.clientWidth);
-        const y = Math.random() * (window.innerHeight - btn.clientHeight);
-        btn.style.position = 'fixed';
-        btn.style.left = x + 'px';
-        btn.style.top = y + 'px';
+        btn.style.left = Math.random() * 80 + '%';
+        btn.style.top = Math.random() * 80 + '%';
+    }
+
+    function triggerLightning() {
+        const box = document.getElementById('lightning-box');
+        box.style.background = "white";
+        setTimeout(() => { box.style.background = "transparent"; }, 50);
+        document.getElementById('main-card').style.animation = "shake 0.5s";
+        setTimeout(() => { document.getElementById('main-card').style.animation = ""; }, 500);
     }
 
     function finalize() {
-        const container = document.getElementById('main-container');
-        container.innerHTML = `
-            <div class="final-screen">
-                <span style="color: #5eead4; font-size: 12px;">STATUS: RESTRICTION BROKEN</span>
-                <h1>CONTRACT SIGNED</h1>
-                <p style="margin-top: 20px; color: #cbd5e1;">
-                    "I remembered... I don't care about winning or losing. I just wanted you."
-                </p>
-                <div style="margin-top: 20px; border: 1px solid #5eead4; padding: 10px;">
-                    <span style="color: #5eead4;">❤ VALENTINE CONFIRMED</span>
-                </div>
+        document.getElementById('main-card').innerHTML = `
+            <h1 style="font-size: 3rem;">SMASH!!</h1>
+            <p>Mission Accomplished. You're the Number One Hero in my book.</p>
+            <div style="border-top: 3px solid var(--deku-green); margin-top: 20px; padding-top: 10px;">
+                <p>Valentine Contract: 100% SUCCESS</p>
             </div>
         `;
-        // Optional: Keep the music playing or change it!
     }
 </script>
 
