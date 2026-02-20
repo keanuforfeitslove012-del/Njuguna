@@ -24,7 +24,6 @@
             overflow: hidden;
         }
 
-        /* Tactical Background Gradients */
         .bg-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -79,7 +78,6 @@
         #no-btn { position: relative; }
         .hidden { display: none; }
 
-        /* Scanned effect */
         .scanline {
             width: 100%;
             height: 2px;
@@ -128,8 +126,7 @@
     const audio = document.getElementById('bgm');
 
     function nextQuestion() {
-        // Start audio on first click
-        if (currentIdx === 0) audio.play();
+        if (currentIdx === 0) audio.play().catch(e => console.log("Audio waiting for user interaction"));
 
         const textElement = document.getElementById('question-text');
         const nextBtn = document.getElementById('next-btn');
@@ -162,20 +159,19 @@
     }
 
     function finalize() {
-        // WhatsApp Message Trigger
-        const phoneNumber = "0794909026"; 
+        // UPDATED PHONE NUMBER
+        const phoneNumber = "254794909026"; 
         const message = encodeURIComponent("Yes! I accept the contract. ❤️ I'll be your Valentine!");
         const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
         document.getElementById('game-box').innerHTML = `
             <h1 style="color: var(--accent-green)">CONTRACT SIGNED</h1>
             <p>"I remembered... I don't care about anything. Except you."</p>
-            <p style="font-size: 12px; color: #888;">Opening WhatsApp to confirm...</p>
+            <p style="font-size: 12px; color: #888;">Executing redirect to WhatsApp...</p>
         `;
 
-        // Wait 1.5 seconds then redirect to WhatsApp
         setTimeout(() => {
-            window.open(whatsappUrl, '_blank');
+            window.location.href = whatsappUrl;
         }, 1500);
     }
 </script>
