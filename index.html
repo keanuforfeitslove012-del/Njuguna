@@ -3,138 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Be My Valentine?</title>
+    <title>The Sorcerer Killer's Request</title>
     <style>
         :root {
-            --primary-pink: #ff4d6d;
-            --soft-pink: #ffccd5;
-            --dark-pink: #c9184a;
+            --toji-teal: #1a3a3a;
+            --toji-black: #0d0d0d;
+            --accent-green: #4ade80;
+            --blood-red: #8b0000;
         }
 
         body {
             margin: 0;
-            padding: 0;
+            background-color: var(--toji-black);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: var(--soft-pink);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            color: var(--dark-pink);
         }
 
-        /* Floating Hearts Background */
-        .bg-heart {
-            position: absolute;
-            color: rgba(255, 77, 109, 0.2);
-            font-size: 20px;
-            user-select: none;
-            z-index: 0;
-            animation: float 10s linear infinite;
+        /* Animated Background Gradients */
+        .bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, var(--toji-teal) 0%, transparent 70%);
+            opacity: 0.3;
+            z-index: -1;
+            animation: pulse 4s infinite alternate;
         }
 
-        @keyframes float {
-            0% { transform: translateY(110vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        @keyframes pulse {
+            from { opacity: 0.2; transform: scale(1); }
+            to { opacity: 0.4; transform: scale(1.1); }
         }
 
-        .card {
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        .container {
             text-align: center;
-            z-index: 10;
-            max-width: 400px;
-            border: 2px solid white;
+            border: 2px solid var(--accent-green);
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 20px var(--accent-green);
+            max-width: 500px;
+            border-radius: 10px;
         }
 
-        h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-        p { font-size: 1.2rem; line-height: 1.6; }
+        #question-text {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            min-height: 80px;
+            text-shadow: 0 0 5px var(--accent-green);
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
 
         .btn {
-            background-color: var(--primary-pink);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            border-radius: 50px;
+            background: transparent;
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            padding: 10px 25px;
             cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-            margin-top: 20px;
+            font-family: inherit;
             font-weight: bold;
+            transition: 0.3s;
         }
 
         .btn:hover {
-            background-color: var(--dark-pink);
-            transform: scale(1.05);
+            background: var(--accent-green);
+            color: black;
+            box-shadow: 0 0 15px var(--accent-green);
         }
 
-        .btn:active { transform: scale(0.95); }
+        #no-btn {
+            position: relative;
+        }
 
-        #message {
-            display: none;
+        .music-player {
             margin-top: 20px;
-            font-weight: bold;
-            font-size: 1.5rem;
-            animation: fadeIn 1s;
+            opacity: 0.5;
+            transition: 0.3s;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .music-player:hover { opacity: 1; }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>Hey, Beautiful! ❤️</h1>
-        <p>I wanted to make you something special to ask a very important question...</p>
-        <button class="btn" onclick="celebrate()">Click Me</button>
-        <div id="message">Will you be my Valentine? 🌹</div>
+<div class="bg-overlay"></div>
+
+<div class="container">
+    <div id="game-box">
+        <p id="question-text">Target locked. I have zero cursed energy... but I have a question for you.</p>
+        
+        <div class="btn-container">
+            <button id="next-btn" class="btn" onclick="nextQuestion()">Proceed</button>
+            <button id="yes-btn" class="btn hidden" onclick="finalize()">YES</button>
+            <button id="no-btn" class="btn hidden" onmouseover="moveNo()">NO</button>
+        </div>
     </div>
 
-    <script>
-        // Create background hearts
-        function createHearts() {
-            for (let i = 0; i < 25; i++) {
-                const heart = document.createElement('div');
-                heart.className = 'bg-heart';
-                heart.innerHTML = '❤️';
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
-                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
-                document.body.appendChild(heart);
-            }
+    <div class="music-player">
+        <p style="font-size: 10px;">Play BGM (Hidden Inventory Theme)</p>
+        <audio id="bgm" controls loop>
+            <source src="https://www.myinstants.com/media/sounds/toji-fushiguro-theme.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        "In a world of sorcerers, you're the only one I can't look away from.",
+        "Forget the Zenin clan... the only thing that matters right now is you.",
+        "I've completed every contract except one...",
+        "Will you be my Valentine? (Don't say no, I have a fly-head curse ready...)"
+    ];
+
+    let currentIdx = 0;
+
+    function nextQuestion() {
+        const textElement = document.getElementById('question-text');
+        const nextBtn = document.getElementById('next-btn');
+        const yesBtn = document.getElementById('yes-btn');
+        const noBtn = document.getElementById('no-btn');
+
+        if (currentIdx < questions.length) {
+            textElement.style.opacity = 0;
+            setTimeout(() => {
+                textElement.innerText = questions[currentIdx];
+                textElement.style.opacity = 1;
+                currentIdx++;
+
+                if (currentIdx === questions.length) {
+                    nextBtn.classList.add('hidden');
+                    yesBtn.classList.remove('hidden');
+                    noBtn.classList.remove('hidden');
+                }
+            }, 300);
         }
+    }
 
-        function celebrate() {
-            const msg = document.getElementById('message');
-            msg.style.display = 'block';
-            
-            // Simple emoji burst
-            for (let i = 0; i < 30; i++) {
-                setTimeout(() => {
-                    const spark = document.createElement('div');
-                    spark.innerHTML = '✨';
-                    spark.style.position = 'absolute';
-                    spark.style.left = '50%';
-                    spark.style.top = '50%';
-                    spark.style.fontSize = '20px';
-                    spark.style.transition = 'all 1s ease-out';
-                    document.body.appendChild(spark);
+    function moveNo() {
+        const btn = document.getElementById('no-btn');
+        const x = Math.random() * (window.innerWidth - btn.clientWidth);
+        const y = Math.random() * (window.innerHeight - btn.clientHeight);
+        
+        btn.style.position = 'fixed';
+        btn.style.left = x + 'px';
+        btn.style.top = y + 'px';
+    }
 
-                    const x = (Math.random() - 0.5) * 600;
-                    const y = (Math.random() - 0.5) * 600;
-                    
-                    setTimeout(() => {
-                        spark.style.transform = `translate(${x}px, ${y}px)`;
-                        spark.style.opacity = '0';
-                    }, 50);
-                }, i * 20);
-            }
-        }
+    function finalize() {
+        document.getElementById('game-box').innerHTML = `
+            <h1 style="color: var(--accent-green)">CONTRACT SIGNED.</h1>
+            <p>"I'm a man who doesn't care about anything... except you."</p>
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXR3bmN6NXp1eXR3bmN6NXp1eXR3bmN6NXp1eXR3bmN6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/vYggnFf63wg6mS2mAn/giphy.gif" alt="Toji" style="width:100%; border-radius:10px; margin-top:10px;">
+        `;
+    }
+</script>
 
-        createHearts();
-    </script>
 </body>
 </html>
