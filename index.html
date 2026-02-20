@@ -1,258 +1,140 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import axios from 'axios';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <style>
+        :root {
+            --primary-pink: #ff4d6d;
+            --soft-pink: #ffccd5;
+            --dark-pink: #c9184a;
+        }
 
-// Types
-interface Movie {
-  id: number;
-  title: string;
-  poster: string;
-  rating: number;
-  year: string;
-  freeOn: { name: string; logo: string }[];
-}
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--soft-pink);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            color: var(--dark-pink);
+        }
 
-interface Game {
-  id: number;
-  homeTeam: string;
-  awayTeam: string;
-  homeScore: number;
-  awayScore: number;
-  status: string;
-  startTime: string;
-  channel: string;
-}
+        /* Floating Hearts Background */
+        .bg-heart {
+            position: absolute;
+            color: rgba(255, 77, 109, 0.2);
+            font-size: 20px;
+            user-select: none;
+            z-index: 0;
+            animation: float 10s linear infinite;
+        }
 
-// API base URL
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+        @keyframes float {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
 
-// Components
-const MovieCard: React.FC<{ movie: Movie }> = ({ movie }) => (
-  <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow">
-    <img src={movie.poster} alt={movie.title} className="w-full h-64 object-cover" />
-    <div className="p-4">
-      <h3 className="text-white font-bold text-lg mb-1">{movie.title}</h3>
-      <p className="text-gray-400 text-sm mb-2">{movie.year} • ⭐ {movie.rating.toFixed(1)}</p>
-      <div className="flex flex-wrap gap-2 mt-3">
-        {movie.freeOn.map((source, idx) => (
-          <a
-            key={idx}
-            href={`https://www.google.com/search?q=${movie.title}+${source.name}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-green-600 text-white text-xs px-3 py-1 rounded-full hover:bg-green-700 transition"
-          >
-            Watch on {source.name}
-          </a>
-        ))}
-      </div>
+        .card {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            z-index: 10;
+            max-width: 400px;
+            border: 2px solid white;
+        }
+
+        h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+        p { font-size: 1.2rem; line-height: 1.6; }
+
+        .btn {
+            background-color: var(--primary-pink);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background-color: var(--dark-pink);
+            transform: scale(1.05);
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        #message {
+            display: none;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.5rem;
+            animation: fadeIn 1s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Hey, Beautiful! ❤️</h1>
+        <p>I wanted to make you something special to ask a very important question...</p>
+        <button class="btn" onclick="celebrate()">Click Me</button>
+        <div id="message">Will you be my Valentine? 🌹</div>
     </div>
-  </div>
-);
 
-const GameCard: React.FC<{ game: Game }> = ({ game }) => {
-  const isLive = game.status === 'InProgress';
-  const isUpcoming = new Date(game.startTime) > new Date();
-  
-  return (
-    <div className={`bg-gray-800 rounded-lg p-4 shadow-lg ${isLive ? 'border-2 border-red-500' : ''}`}>
-      <div className="flex justify-between items-center mb-2">
-        <span className={`text-xs font-bold px-2 py-1 rounded ${
-          isLive ? 'bg-red-500 text-white animate-pulse' : 
-          isUpcoming ? 'bg-blue-500 text-white' : 'bg-gray-600 text-gray-300'
-        }`}>
-          {isLive ? '🔴 LIVE' : isUpcoming ? 'UPCOMING' : 'FINISHED'}
-        </span>
-        <span className="text-gray-400 text-sm">{game.channel}</span>
-      </div>
-      
-      <div className="flex justify-between items-center">
-        <div className="text-center flex-1">
-          <h4 className="text-white font-bold text-lg">{game.awayTeam}</h4>
-          <p className="text-2xl font-bold text-white">{game.awayScore}</p>
-        </div>
-        
-        <div className="text-gray-500 font-bold text-xl">VS</div>
-        
-        <div className="text-center flex-1">
-          <h4 className="text-white font-bold text-lg">{game.homeTeam}</h4>
-          <p className="text-2xl font-bold text-white">{game.homeScore}</p>
-        </div>
-      </div>
-      
-      <p className="text-gray-400 text-center text-sm mt-2">
-        {new Date(game.startTime).toLocaleString()}
-      </p>
-    </div>
-  );
-};
+    <script>
+        // Create background hearts
+        function createHearts() {
+            for (let i = 0; i < 25; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'bg-heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                document.body.appendChild(heart);
+            }
+        }
 
-// Main App
-const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'movies' | 'sports'>('movies');
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [games, setGames] = useState<Game[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [selectedSport, setSelectedSport] = useState('nba');
-
-  useEffect(() => {
-    fetchTrendingMovies();
-    fetchLiveGames();
-  }, [selectedSport]);
-
-  const fetchTrendingMovies = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/api/movies/trending`);
-      setMovies(response.data);
-    } catch (error) {
-      console.error('Error fetching movies:', error);
-    }
-    setLoading(false);
-  };
-
-  const searchMovies = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery) return;
-    
-    setLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/api/movies/search?query=${searchQuery}`);
-      setMovies(response.data);
-    } catch (error) {
-      console.error('Error searching movies:', error);
-    }
-    setLoading(false);
-  };
-
-  const fetchLiveGames = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/sports/live?sport=${selectedSport}`);
-      setGames(response.data);
-    } catch (error) {
-      console.error('Error fetching games:', error);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Header */}
-      <header className="bg-gray-800 shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white">🎬 StreamFinder</h1>
+        function celebrate() {
+            const msg = document.getElementById('message');
+            msg.style.display = 'block';
             
-            <nav className="flex space-x-4">
-              <button
-                onClick={() => setActiveTab('movies')}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  activeTab === 'movies' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'
-                }`}
-              >
-                🎬 Movies
-              </button>
-              <button
-                onClick={() => setActiveTab('sports')}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  activeTab === 'sports' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'
-                }`}
-              >
-                🏆 Live Sports
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
+            // Simple emoji burst
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const spark = document.createElement('div');
+                    spark.innerHTML = '✨';
+                    spark.style.position = 'absolute';
+                    spark.style.left = '50%';
+                    spark.style.top = '50%';
+                    spark.style.fontSize = '20px';
+                    spark.style.transition = 'all 1s ease-out';
+                    document.body.appendChild(spark);
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {activeTab === 'movies' ? (
-          <div>
-            {/* Search Bar */}
-            <form onSubmit={searchMovies} className="mb-8">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Search for movies..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-                >
-                  Search
-                </button>
-              </div>
-            </form>
+                    const x = (Math.random() - 0.5) * 600;
+                    const y = (Math.random() - 0.5) * 600;
+                    
+                    setTimeout(() => {
+                        spark.style.transform = `translate(${x}px, ${y}px)`;
+                        spark.style.opacity = '0';
+                    }, 50);
+                }, i * 20);
+            }
+        }
 
-            {/* Movies Grid */}
-            {loading ? (
-              <div className="text-center text-gray-400 py-12">Loading...</div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {movies.map(movie => (
-                  <MovieCard key={movie.id} movie={movie} />
-                ))}
-              </div>
-            )}
-
-            {movies.length === 0 && !loading && (
-              <div className="text-center text-gray-400 py-12">
-                No free streaming sources found. Try another search!
-              </div>
-            )}
-          </div>
-        ) : (
-          <div>
-            {/* Sport Selector */}
-            <div className="flex gap-2 mb-6">
-              {['nba', 'nfl', 'mlb', 'nhl'].map(sport => (
-                <button
-                  key={sport}
-                  onClick={() => setSelectedSport(sport)}
-                  className={`px-4 py-2 rounded-lg font-medium uppercase transition ${
-                    selectedSport === sport ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  }`}
-                >
-                  {sport}
-                </button>
-              ))}
-            </div>
-
-            {/* Games Grid */}
-            {games.length === 0 ? (
-              <div className="text-center text-gray-400 py-12">No live games found</div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {games.map(game => (
-                  <GameCard key={game.id} game={game} />
-                ))}
-              </div>
-            )}
-
-            <div className="mt-8 p-4 bg-gray-800 rounded-lg">
-              <p className="text-gray-400 text-sm">
-                💡 <strong>Note:</strong> We provide scores and broadcast info. 
-                To watch games, check the listed channel or use official league apps 
-                (NBA League Pass, NFL Game Pass, etc.) with valid subscriptions.
-              </p>
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 mt-12 py-8">
-        <div className="max-w-7xl mx-auto px-4 text-center text-gray-400">
-          <p>StreamFinder only links to legal, free streaming sources.</p>
-          <p className="mt-2 text-sm">© 2024 StreamFinder. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
-  );
-};
-
-export default App;
+        createHearts();
+    </script>
+</body>
+</html>
